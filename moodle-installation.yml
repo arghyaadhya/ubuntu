@@ -38,11 +38,3 @@
           - wget
         state: present
         update_cache: yes
-    - name: GET moodle packages & untar
-  get_url:
-    url: https://download.moodle.org/download.php/stable400/moodle-4.0.4.tgz
-    dest: /opt/moodle-installer
-    mode: 777
-  unarchive:
-    src: /opt/moodle-installer/*.tgz
-    dest: /opt/moodle-installer
