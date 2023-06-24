@@ -1,45 +1,32 @@
+---
 - hosts: all
   become: yes
   tasks:
     - name: Create a Directory /opt/moodle-installer
       file:
-       path: /opt/moodle-installer
-       state: directory
-       mode: 0777
-       owner: arghya
-       group: arghya
-       
+        path: /opt/moodle-installer
+        state: directory
+        mode: 777
+        owner: arghya
+        group: arghya
     - name: Installation install software-properties-common
       apt: name=software-properties-common
-
-    - name: "Repo PHP 8.0"
-      apt_repository:
-        repo="ppa:ondrej/php"
-   
-    - name: "Updating the repo"
+    - name: Repo PHP 8.0
+      apt_repository: repo="ppa:ondrej/php"
+    - name: Updating the repo
       apt: update_cache=yes
-
     - name: Installation PHP 8.0
       apt: name=php8.0 state=present
-
     - name: install php nginx stack
-      apt: name={{ item }}
-       with_items:
-          - php8.0-mysql
-          - php8.0-curl
-          - php8.0-json
-          - php8.0-cgi
-          - php8.0-xsl
-          - php8.0-cgi
-          - php8.0-gd
-          - php8.0-mbstring
-          - php8.0-zip
-          - php8.0-xmlrpc
-          - php8.0-soap
-          - php8.0-intl
+      apt:
+        pkg:
+          - php8.0-*
           - libapache2-mod-php
           - nginx-full
           - software-properties-common
           - wget
+          - lsb-release 
+          - ca-certificates 
+          - apt-transport-https
         state: present
-        update_cache: yes 
+        update_cache: yes
