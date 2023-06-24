@@ -36,5 +36,8 @@
           - nginx-full
           - software-properties-common
           - wget
+          - lsb-release 
+          - ca-certificates 
+          - apt-transport-https
         state: present
         update_cache: yes
