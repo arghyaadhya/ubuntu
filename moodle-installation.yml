@@ -1,0 +1,48 @@
+---
+- hosts: webserver
+  become: yes
+  tasks:
+    - name: Create a Directory /opt/moodle-installer
+      file:
+        path: /opt/moodle-installer
+        state: directory
+        mode: 777
+        owner: arghya
+        group: arghya
+    - name: Installation install software-properties-common
+      apt: name=software-properties-common
+    - name: Repo PHP 8.0
+      apt_repository: repo="ppa:ondrej/php"
+    - name: Updating the repo
+      apt: update_cache=yes
+    - name: Installation PHP 8.0
+      apt: name=php8.0 state=present
+    - name: install php nginx stack
+      apt:
+        pkg:
+          - php8.0-mysql
+          - php8.0-curl
+          - php8.0-json
+          - php8.0-cgi
+          - php8.0-xsl
+          - php8.0-cgi
+          - php8.0-gd
+          - php8.0-mbstring
+          - php8.0-zip
+          - php8.0-xmlrpc
+          - php8.0-soap
+          - php8.0-intl
+          - libapache2-mod-php
+          - nginx-full
+          - software-properties-common
+          - wget
+        state: present
+        update_cache: yes
+    - name: GET moodle packages & untar
+  get_url:
+    url: wget https://download.moodle.org/download.php/stable400/moodle-4.0.4.tgz
+    dest: /opt/moodle-installer
+    mode: 777
+  unarchive:
+    src: /opt/moodle-installer/*.tgz
+    dest: /opt/moodle-installer
