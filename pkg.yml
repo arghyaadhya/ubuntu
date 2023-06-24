@@ -23,7 +23,7 @@
       apt: name=php8.0 state=present
 
     - name: install php nginx stack
-      apt: name={{ item }} update_cache=yes state=latest
+      apt: name={{ item }}
        with_items:
           - php8.0-mysql
           - php8.0-curl
