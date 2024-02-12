@@ -1,0 +1,82 @@
+#!/bin/bash
+# Author: arghyaa & mihir
+#
+# Last Revision Date: Feb 08, 2024
+
+ts=`date +%Y-%m-%d_%H.%M.%S`
+
+
+ removeHosts()
+{
+   echo ""
+   echo "Usage: $0 -d deleteFiles -f farmName"
+   echo -e "\t-d deleteFiles is the files where you list the hosts name which you want to deiete from searchFiles"
+   echo -e "\t-f Enter the farm name where you want to delete hosts"
+   exit 1   # Exit script after printing help
+}
+
+while getopts ":d:f:" opt
+do
+   case "$opt" in
+      d ) deleteFiles="$OPTARG" ;;
+      f ) farmName="$OPTARG" ;;
+      ? ) removeHosts ;; # Print removeHosts Function in case parameter is non-existent
+   esac
+done
+
+# Print removehosts function in case parameters are empty
+if [ -z "$deleteFiles" ] || [ -z "$farmName" ] 
+then
+   echo "Some or all of the parameters are empty";
+   removeHosts
+fi
+
+filepath1=/u/arghyaa/script/$farmName/configdir/lsf.cluster.$farmName
+filepath2=/u/arghyaa/script/$farmName/configdir/lsb.hosts
+filepath3=/u/arghyaa/script/$farmName/conf/hostcache
+
+dirpath1=/u/arghyaa/script/$farmName/configdir/
+dirpath2=/u/arghyaa/script/$farmName/conf/
+dirpath3=/u/arghyaa/script/$farmName/farmhosts/
+
+# Begin script in case all parameters are correct
+#echo "$deleteFiles"
+#echo "$string1"
+#echo "$string2"
+#echo "$string3"
+#echo "$farmName"
+
+#init config update
+
+old_string="farm=$farmName"
+new_string="farm=none"
+
+if [ ! -d "$dirpath3" ]; then
+   echo "Directory not found: $dirpath3"
+   exit 1
+fi
+
+#Loop through each file in the list and replace fram to none
+
+while IFS= read -r filename; do
+   full_path="$dirpath3/$filename"
+   if [ -f "$full_path" ]; then
+       sed -i "s/$old_string/$new_string/g" "$full_path"
+    echo "String repalced in $filename"
+  else
+     echo "File not found: $filename"
+   fi
+done < "$deleteFiles"
+
+# Create a backup file with date time before editing
+cp -a "$filepath1" "$filepath1.bak_$ts" && find $dirpath1/* -name '$filepath1.bak_*' -prune -o -mtime +1 -exec ls {} \;
+cp -a "$filepath2" "$filepath2.bak_$ts" && find $dirpath1/* -name '$filepath2.bak_*' -prune -o -mtime +1 -exec ls {} \;
+cp -a "$filepath3" "$filepath3.bak_$ts" && find $dirpath2/* -name '$filepath3.bak_*' -prune -o -mtime +1 -exec ls {} \;
+
+# Delete hosts from the files
+while IFS= read -r regexp; do
+    	sed -i "s/\<$regexp\> //g" "$filepath2"
+	sed -i "/^ /d" "$filepath2"
+	sed -i "/$regexp/d" "$filepath3"
+	sed -i "/$regexp/d" "$filepath1"
+done < "$deleteFiles"
